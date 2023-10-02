@@ -4,8 +4,8 @@ import sentry_sdk
 from loguru import logger
 from dotenv import load_dotenv
 
-from information_sources.iqair import IQAirClient
 from pub_sub_adapters import GCPPubSub
+from information_sources.iqair import IQAirClient
 
 
 if __name__ == "__main__":
@@ -42,11 +42,13 @@ if __name__ == "__main__":
 
     # Publish message to pub/sub
     for r in responses:
-        GCPPubSub().publish_message(
+        logger.info(f"r.model_dump_json(): {r.model_dump_json()}")
+        message_id = GCPPubSub().publish_message(
             data=r.model_dump_json(),
             metadata=None,
             project_id=os.environ["GCP_PROJECT_ID"],
             topic_id=os.environ["GCP_TOPIC_ID"],
         )
+        logger.info(f"message_id: {message_id}")
 
     # TODO: Trigger dataflow pipeline
